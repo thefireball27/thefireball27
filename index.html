@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #87CEEB; /* Sky blue */
+        }
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #228B22; /* Grass green */
+        }
+        .character {
+            width: 50px;
+            height: 50px;
+            background-color: #FF6347; /* Tomato red */
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="character" class="character"></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const character = document.getElementById('character');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let characterX = canvas.width / 2;
+        let characterY = canvas.height - 60;
+        let characterWidth = 50;
+        let characterHeight = 50;
+        let velocityY = 0;
+        let isJumping = false;
+
+        function drawCharacter() {
+            character.style.left = `${characterX}px`;
+            character.style.top = `${characterY}px`;
+        }
+
+        function gameLoop() {
+            if (isJumping) {
+                velocityY += 1; // Gravity
+            } else {
+                velocityY = 0;
+            }
+
+            characterY += velocityY;
+            
+            if (characterY > canvas.height - characterHeight) {
+                characterY = canvas.height - characterHeight;
+                isJumping = false;
+            }
+
+            drawCharacter();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'ArrowLeft') {
+                characterX -= 5;
+            } else if (event.key === 'ArrowRight') {
+                characterX += 5;
+            } else if (event.key === ' ' && !isJumping) { // Space for jump
+                velocityY = -15;
+                isJumping = true;
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        gameLoop();
+    </script>
+</body>
+</html>

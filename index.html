@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Game Example</title>
+    <title>3D Game with Controls</title>
     <style>
         body {
             margin: 0;
@@ -39,25 +39,39 @@
 
         // Set up the OrbitControls for looking around
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 1, 0); // Camera looks at the center of the cube
 
-        // Jumping mechanics
-        let velocityY = 0;
-        let isJumping = false;
-        const gravity = -0.1;
-        const jumpPower = 0.5;
+        // Player movement variables
+        const speed = 0.1;
+        const keys = {};
+
+        function handleKeyDown(event) {
+            keys[event.code] = true;
+        }
+
+        function handleKeyUp(event) {
+            keys[event.code] = false;
+        }
+
+        function updateMovement() {
+            if (keys['KeyW']) { // Move forward
+                cube.position.z -= speed;
+            }
+            if (keys['KeyS']) { // Move backward
+                cube.position.z += speed;
+            }
+            if (keys['KeyA']) { // Strafe left
+                cube.position.x -= speed;
+            }
+            if (keys['KeyD']) { // Strafe right
+                cube.position.x += speed;
+            }
+        }
 
         function animate() {
             requestAnimationFrame(animate);
 
-            // Handle jumping
-            if (isJumping) {
-                velocityY += gravity; // Apply gravity
-                cube.position.y += velocityY; // Move cube by velocity
-                if (cube.position.y <= 1) { // Check if cube is on the ground
-                    cube.position.y = 1;
-                    isJumping = false;
-                }
-            }
+            updateMovement();
 
             // Update controls
             controls.update();
@@ -65,15 +79,10 @@
             // Render the scene from the perspective of the camera
             renderer.render(scene, camera);
         }
-        animate();
 
-        // Handle keyboard input
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && !isJumping) { // Space key for jumping
-                velocityY = jumpPower;
-                isJumping = true;
-            }
-        });
+        // Event listeners for keyboard input
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
 
         // Handle window resizing
         window.addEventListener('resize', () => {
@@ -81,6 +90,9 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         });
+
+        // Start the animation loop
+        animate();
     </script>
 </body>
 </html>

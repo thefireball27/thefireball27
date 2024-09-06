@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Parkour Level</title>
+    <title>3D Game Example</title>
     <style>
         body {
             margin: 0;
@@ -16,134 +16,37 @@
 </head>
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
     <script>
         // Set up the scene
         const scene = new THREE.Scene();
 
         // Set up the camera
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 10);
+        camera.position.z = 5;
 
         // Set up the renderer
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Create a player (cube)
-        const playerGeometry = new THREE.BoxGeometry();
-        const playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const player = new THREE.Mesh(playerGeometry, playerMaterial);
-        player.position.set(0, 1, 0);
-        scene.add(player);
+        // Create a cube geometry and a basic material and combine them into a mesh
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-        // Create walls
-        const wallGeometry = new THREE.BoxGeometry(1, 10, 1);
-        const wallMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const walls = [
-            new THREE.Mesh(wallGeometry, wallMaterial),
-            new THREE.Mesh(wallGeometry, wallMaterial),
-            new THREE.Mesh(wallGeometry, wallMaterial),
-            new THREE.Mesh(wallGeometry, wallMaterial)
-        ];
-        
-        // Position walls
-        walls[0].position.set(5, 5, 0);   // Right wall
-        walls[1].position.set(-5, 5, 0);  // Left wall
-        walls[2].position.set(0, 5, 5);   // Front wall
-        walls[3].position.set(0, 5, -5);  // Back wall
-
-        walls.forEach(wall => scene.add(wall));
-
-        // Create platforms
-        const platformGeometry = new THREE.BoxGeometry(5, 1, 5);
-        const platformMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-        const platforms = [
-            new THREE.Mesh(platformGeometry, platformMaterial),
-            new THREE.Mesh(platformGeometry, platformMaterial)
-        ];
-        
-        // Position platforms
-        platforms[0].position.set(0, 0, 0);  // Ground platform
-        platforms[1].position.set(0, 3, -7); // Elevated platform
-
-        platforms.forEach(platform => scene.add(platform));
-
-        // Set up OrbitControls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1, 0);
-
-        // Player movement variables
-        const speed = 0.1;
-        const jumpPower = 0.5;
-        const gravity = -0.1;
-        const wallRunSpeed = 0.2;
-        let isJumping = false;
-        let velocityY = 0;
-        let isWallRunning = false;
-        let keys = {};
-
-        function handleKeyDown(event) {
-            keys[event.code] = true;
-        }
-
-        function handleKeyUp(event) {
-            keys[event.code] = false;
-        }
-
-        function updateMovement() {
-            if (keys['KeyW']) { // Move forward
-                player.position.z -= speed;
-            }
-            if (keys['KeyS']) { // Move backward
-                player.position.z += speed;
-            }
-            if (keys['KeyA']) { // Strafe left
-                player.position.x -= speed;
-            }
-            if (keys['KeyD']) { // Strafe right
-                player.position.x += speed;
-            }
-            if (keys['Space'] && !isJumping) { // Jump
-                velocityY = jumpPower;
-                isJumping = true;
-            }
-            if (keys['ShiftLeft']) { // Wall run
-                isWallRunning = true;
-                if (player.position.z > 0) { // Wall to the front
-                    player.position.z -= wallRunSpeed;
-                } else { // Wall to the back
-                    player.position.z += wallRunSpeed;
-                }
-            } else {
-                isWallRunning = false;
-            }
-
-            if (!isWallRunning) {
-                velocityY += gravity; // Apply gravity
-                player.position.y += velocityY; // Move player by velocity
-                if (player.position.y <= 1) { // Ground level
-                    player.position.y = 1;
-                    isJumping = false;
-                }
-            }
-        }
-
+        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
 
-            updateMovement();
+            // Rotate the cube
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
 
-            // Update controls
-            controls.update();
-
-            // Render the scene
+            // Render the scene from the perspective of the camera
             renderer.render(scene, camera);
         }
-
-        // Event listeners for keyboard input
-        document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('keyup', handleKeyUp);
+        animate();
 
         // Handle window resizing
         window.addEventListener('resize', () => {
@@ -151,9 +54,6 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         });
-
-        // Start the animation loop
-        animate();
     </script>
 </body>
 </html>
